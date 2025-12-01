@@ -1,0 +1,53 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/app-portal:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/app-portal:latest'
+      - '--build-arg'
+      - 'NEXTAUTH_URL=$_NEXTAUTH_URL'
+      - '--build-arg'
+      - 'NEXTAUTH_SECRET=$_NEXTAUTH_SECRET'
+      - '--build-arg'
+      - 'GOOGLE_CLIENT_ID=$_GOOGLE_CLIENT_ID'
+      - '--build-arg'
+      - 'GOOGLE_CLIENT_SECRET=$_GOOGLE_CLIENT_SECRET'
+      - '.'
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/app-portal:$COMMIT_SHA']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/app-portal:latest']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'app-portal'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/app-portal:$COMMIT_SHA'
+      - '--region'
+      - '$_REGION'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'NEXTAUTH_URL=$_NEXTAUTH_URL,NEXTAUTH_SECRET=$_NEXTAUTH_SECRET,GOOGLE_CLIENT_ID=$_GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET=$_GOOGLE_CLIENT_SECRET'
+
+images:
+  - 'gcr.io/$PROJECT_ID/app-portal:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/app-portal:latest'
+
+substitutions:
+  _REGION: us-central1
+  _NEXTAUTH_URL: https://your-app.run.app
+  _NEXTAUTH_SECRET: ''
+  _GOOGLE_CLIENT_ID: ''
+  _GOOGLE_CLIENT_SECRET: ''
