@@ -24,6 +24,16 @@ function isValidDocId(id: string): boolean {
   return /^[a-zA-Z0-9_-]{1,128}$/.test(id);
 }
 
+// Validate hex color
+function isValidHexColor(color: string): boolean {
+  return /^#[0-9a-fA-F]{6}$/.test(color);
+}
+
+// Validate icon slug
+function isValidSlug(slug: string): boolean {
+  return /^[a-z0-9-]+$/.test(slug);
+}
+
 // PUT - Update an app
 export async function PUT(
   request: NextRequest,
@@ -37,7 +47,7 @@ export async function PUT(
 
   try {
     const { id } = await params;
-    
+
     // Validate document ID
     if (!isValidDocId(id)) {
       return NextResponse.json({ error: "Invalid app ID" }, { status: 400 });
@@ -61,6 +71,12 @@ export async function PUT(
     if (data.logoUrl && !isValidUrl(data.logoUrl)) {
       return NextResponse.json({ error: "Invalid logo URL" }, { status: 400 });
     }
+    if (data.iconColor && !isValidHexColor(data.iconColor)) {
+      return NextResponse.json({ error: "Invalid icon color (must be #RRGGBB)" }, { status: 400 });
+    }
+    if (data.iconSlug && !isValidSlug(data.iconSlug)) {
+      return NextResponse.json({ error: "Invalid icon slug (lowercase alphanumeric and hyphens only)" }, { status: 400 });
+    }
 
     const updateData = {
       appName: sanitizeString(data.appName, 100),
@@ -68,6 +84,9 @@ export async function PUT(
       productionUrl: data.productionUrl,
       githubRepoUrl: data.githubRepoUrl || null,
       logoUrl: data.logoUrl || null,
+      iconSlug: data.iconSlug || null,
+      iconColor: data.iconColor || null,
+      sortOrder: typeof data.sortOrder === "number" ? data.sortOrder : 0,
       lastUsedAt: new Date().toISOString(),
     };
 
@@ -93,7 +112,7 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    
+
     // Validate document ID
     if (!isValidDocId(id)) {
       return NextResponse.json({ error: "Invalid app ID" }, { status: 400 });
@@ -121,7 +140,7 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    
+
     // Validate document ID
     if (!isValidDocId(id)) {
       return NextResponse.json({ error: "Invalid app ID" }, { status: 400 });

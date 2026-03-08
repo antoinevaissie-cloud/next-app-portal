@@ -13,6 +13,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 
+const ICON_OPTIONS = [
+  { value: "", label: "None" },
+  { value: "liquidity-tracker", label: "Liquidity Tracker (bar chart)" },
+  { value: "taskr", label: "Taskr (checkmark)" },
+  { value: "shortlist", label: "Shortlist (star)" },
+  { value: "portal", label: "Portal (grid)" },
+  { value: "default", label: "Default (generic)" },
+];
+
+const COLOR_PRESETS = [
+  { value: "#10b981", label: "Emerald" },
+  { value: "#8b5cf6", label: "Violet" },
+  { value: "#f59e0b", label: "Amber" },
+  { value: "#3b82f6", label: "Blue" },
+  { value: "#ef4444", label: "Red" },
+  { value: "#64748b", label: "Slate" },
+];
+
 interface AppFormDialogProps {
   app?: App | null;
   isOpen: boolean;
@@ -99,6 +117,87 @@ export function AppFormDialog({
               className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 focus:border-emerald-500"
             />
           </div>
+
+          {/* Icon configuration */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="iconSlug" className="text-slate-300">
+                Icon
+              </Label>
+              <select
+                id="iconSlug"
+                value={formData.iconSlug || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, iconSlug: e.target.value || undefined })
+                }
+                className="w-full h-9 rounded-md bg-slate-900 border border-slate-600 text-white text-sm px-3 focus:border-emerald-500 focus:outline-none"
+              >
+                {ICON_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="iconColor" className="text-slate-300">
+                Icon Color
+              </Label>
+              <div className="flex gap-2 items-center">
+                <Input
+                  id="iconColor"
+                  type="text"
+                  placeholder="#64748b"
+                  value={formData.iconColor || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, iconColor: e.target.value || undefined })
+                  }
+                  className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 focus:border-emerald-500 flex-1"
+                />
+                <input
+                  type="color"
+                  value={formData.iconColor || "#64748b"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, iconColor: e.target.value })
+                  }
+                  className="w-9 h-9 rounded cursor-pointer border-0 bg-transparent"
+                />
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {COLOR_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    title={preset.label}
+                    onClick={() => setFormData({ ...formData, iconColor: preset.value })}
+                    className="w-5 h-5 rounded-full border-2 transition-all"
+                    style={{
+                      backgroundColor: preset.value,
+                      borderColor: formData.iconColor === preset.value ? "white" : "transparent",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Icon preview */}
+          {formData.iconSlug && (
+            <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg">
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: formData.iconColor || "#64748b" }}
+              >
+                <img
+                  src={`/icons/${formData.iconSlug}.svg`}
+                  alt="Icon preview"
+                  className="w-5 h-5"
+                />
+              </div>
+              <span className="text-sm text-slate-400">Icon preview</span>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="githubRepoUrl" className="text-slate-300">
               GitHub Repo URL (Optional)

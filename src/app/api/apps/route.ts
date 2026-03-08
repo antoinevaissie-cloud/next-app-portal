@@ -45,6 +45,16 @@ function sanitizeString(str: string, maxLength: number = 500): string {
   return str.trim().slice(0, maxLength);
 }
 
+// Validate hex color
+function isValidHexColor(color: string): boolean {
+  return /^#[0-9a-fA-F]{6}$/.test(color);
+}
+
+// Validate icon slug
+function isValidSlug(slug: string): boolean {
+  return /^[a-z0-9-]+$/.test(slug);
+}
+
 // POST - Create a new app
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -72,6 +82,12 @@ export async function POST(request: NextRequest) {
     if (data.logoUrl && !isValidUrl(data.logoUrl)) {
       return NextResponse.json({ error: "Invalid logo URL" }, { status: 400 });
     }
+    if (data.iconColor && !isValidHexColor(data.iconColor)) {
+      return NextResponse.json({ error: "Invalid icon color (must be #RRGGBB)" }, { status: 400 });
+    }
+    if (data.iconSlug && !isValidSlug(data.iconSlug)) {
+      return NextResponse.json({ error: "Invalid icon slug (lowercase alphanumeric and hyphens only)" }, { status: 400 });
+    }
 
     const now = new Date().toISOString();
 
@@ -81,6 +97,9 @@ export async function POST(request: NextRequest) {
       productionUrl: data.productionUrl,
       githubRepoUrl: data.githubRepoUrl || null,
       logoUrl: data.logoUrl || null,
+      iconSlug: data.iconSlug || null,
+      iconColor: data.iconColor || null,
+      sortOrder: typeof data.sortOrder === "number" ? data.sortOrder : 0,
       lastUsedAt: now,
       createdAt: now,
       createdBy: session.user.email,

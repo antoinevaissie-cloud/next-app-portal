@@ -5,5 +5,16 @@ export interface App {
   productionUrl: string;
   githubRepoUrl?: string;
   logoUrl?: string;
+  iconSlug?: string;
+  iconColor?: string;
+  sortOrder?: number;
   lastUsedAt: Date;
+}
+
+export interface WidgetApp {
+  id: string;
+  appName: string;
+  productionUrl: string;
+  iconUrl: string;
+  iconColor: string;
 }

@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { App } from "@/lib/types";
 import {
   Card,
@@ -16,22 +19,54 @@ interface AppCardProps {
   onOpen?: (app: App) => void;
 }
 
+function CardIcon({ iconSlug, iconColor, appName, logoUrl }: { iconSlug?: string; iconColor?: string; appName: string; logoUrl?: string }) {
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+  const color = iconColor || "#64748b";
+
+  useEffect(() => {
+    if (!iconSlug) return;
+    fetch(`/icons/${iconSlug}.svg`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Not found");
+        return res.text();
+      })
+      .then((svg) => setSvgContent(svg))
+      .catch(() => setSvgContent(null));
+  }, [iconSlug]);
+
+  if (logoUrl) {
+    return (
+      <img
+        src={logoUrl}
+        alt={appName}
+        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0"
+      />
+    );
+  }
+
+  if (iconSlug && svgContent) {
+    return (
+      <div
+        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5"
+        style={{ backgroundColor: color }}
+        dangerouslySetInnerHTML={{ __html: svgContent }}
+      />
+    );
+  }
+
+  return (
+    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center text-emerald-400 font-bold text-base sm:text-lg flex-shrink-0">
+      {appName.charAt(0)}
+    </div>
+  );
+}
+
 export function AppCard({ app, onEdit, onDelete, onOpen }: AppCardProps) {
   return (
     <Card className="bg-slate-800/50 border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 p-4">
         <div className="flex items-center space-x-3 min-w-0 flex-1">
-          {app.logoUrl ? (
-            <img
-              src={app.logoUrl}
-              alt={app.appName}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0"
-            />
-          ) : (
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center text-emerald-400 font-bold text-base sm:text-lg flex-shrink-0">
-              {app.appName.charAt(0)}
-            </div>
-          )}
+          <CardIcon iconSlug={app.iconSlug} iconColor={app.iconColor} appName={app.appName} logoUrl={app.logoUrl} />
           <CardTitle className="text-sm sm:text-base font-semibold text-white truncate">
             {app.appName}
           </CardTitle>
