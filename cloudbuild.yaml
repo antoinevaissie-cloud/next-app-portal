@@ -15,6 +15,8 @@ steps:
       - 'GOOGLE_CLIENT_ID=$_GOOGLE_CLIENT_ID'
       - '--build-arg'
       - 'GOOGLE_CLIENT_SECRET=$_GOOGLE_CLIENT_SECRET'
+      - '--build-arg'
+      - 'GOOGLE_CLOUD_PROJECT=$PROJECT_ID'
       - '.'
 
   # Push the container image to Container Registry
@@ -39,7 +41,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'NEXTAUTH_URL=$_NEXTAUTH_URL,NEXTAUTH_SECRET=$_NEXTAUTH_SECRET,GOOGLE_CLIENT_ID=$_GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET=$_GOOGLE_CLIENT_SECRET'
+      - 'NEXTAUTH_URL=$_NEXTAUTH_URL,NEXTAUTH_SECRET=$_NEXTAUTH_SECRET,GOOGLE_CLIENT_ID=$_GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET=$_GOOGLE_CLIENT_SECRET,GOOGLE_CLOUD_PROJECT=$PROJECT_ID'
 
 images:
   - 'gcr.io/$PROJECT_ID/app-portal:$COMMIT_SHA'
